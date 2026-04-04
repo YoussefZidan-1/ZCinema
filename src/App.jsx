@@ -1,3 +1,4 @@
+// App.jsx
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'react-use';
 import { updateSearchCount, getTrendingMovies } from './appwrite';
@@ -100,7 +101,7 @@ const App = () => {
                 <li key={movie.$id}>
                     <p>{index + 1}</p>
                     <img 
-                      src={movie.poster_url} 
+                      src={movie.poster_url.replace('w500', 'w200')} 
                       alt={movie.searchTerm} 
                       width="127" 
                       height="163" 
