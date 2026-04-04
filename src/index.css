@@ -5,18 +5,12 @@
 
 @theme {
   --color-primary: #030014;
-
   --color-light-100: #cecefb;
   --color-light-200: #a8b5db;
-
   --color-gray-100: #9ca4ab;
-
   --color-dark-100: #0f0d23;
-
   --font-dm-sans: DM Sans, sans-serif;
-
   --breakpoint-xs: 480px;
-
   --background-image-hero-pattern: url("/hero-bg.png");
 }
 
@@ -74,6 +68,8 @@
 
     & ul li img {
       @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5;
+      aspect-ratio: 127/163;
+      flex-shrink: 0;
     }
   }
 
@@ -146,7 +142,10 @@
     }
 
     & img {
-      @apply rounded-lg h-auto w-full;
+      @apply rounded-lg w-full;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      background-color: #0f0d23;
     }
 
     & h3 {
