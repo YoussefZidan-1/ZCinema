@@ -81,10 +81,17 @@ const App = () => {
 
       <div className="wrapper">
         <header>
-          <img src="/hero.png" alt="Hero Banner" />
+          <img 
+            src="/hero.png" 
+            alt="Hero Banner" 
+            fetchPriority="high" 
+            width="1000" 
+            height="400" 
+          />
           <h1>Find <span className="text-gradient">Movies</span> You'll Enjoy Without The Hassle</h1>
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
+
         {trendingMovies.length > 0 && (
           <section className="trending">
             <h2>Trending Movies</h2>
@@ -92,12 +99,19 @@ const App = () => {
               {trendingMovies.map((movie, index) => (
                 <li key={movie.$id}>
                     <p>{index + 1}</p>
-                    <img src={movie.poster_url} alt={movie.searchTerm} />
+                    <img 
+                      src={movie.poster_url} 
+                      alt={movie.searchTerm} 
+                      width="127" 
+                      height="163" 
+                      loading="lazy" 
+                    />
                 </li>
               ))}
             </ul>
           </section>
         )}
+
         <section className="all-movies">
           <h2 className="mt-10">All Movies</h2>
 
