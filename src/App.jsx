@@ -83,7 +83,7 @@ const App = () => {
       <div className="wrapper">
         <header>
           <img 
-            src="/hero.png" 
+            src="/hero.webp" 
             alt="Hero Banner" 
             fetchPriority="high" 
             width="1000" 
