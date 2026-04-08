@@ -1,6 +1,6 @@
 # 🎬 Movie Vault | Find Movies Without The Hassle
 
-![Hero Banner](/public/hero.png)
+![Hero Banner](/public/hero.webp)
 
 ## 👤 Developed by: Youssef Zidan
 A modern, high-performance web application designed to help users discover trending movies and search for their favorites seamlessly. Built with a focus on speed, clean UI, and real-time data integration.
