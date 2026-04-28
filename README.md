@@ -31,4 +31,4 @@ A modern, high-performance web application designed to help users discover trend
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/YoussefZidan-1/ZCinema.git](https://github.com/YoussefZidan-1/ZCinema.git)
+   git clone https://github.com/YoussefZidan-1/ZCinema.git
