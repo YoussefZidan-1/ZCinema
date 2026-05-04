@@ -22,7 +22,7 @@ const App = () => {
   const [movieList, setMovieList] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
-  const [errorMessage, setErrorMessage] = useState(''); // Now fully handled
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [selectedMovieId, setSelectedMovieId] = useState(null);
@@ -33,35 +33,23 @@ const App = () => {
 
   const fetchMovies = async (query = '') => {
     setIsLoading(true);
-    setErrorMessage(''); // Clear previous errors
-
+    setErrorMessage('');
     try {
       const endpoint = query 
         ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
         : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
 
       const response = await fetch(endpoint, API_OPTIONS);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch movies. Please check your network or API key.');
-      }
-
+      if (!response.ok) throw new Error('Failed to fetch movies');
       const data = await response.json();
-
-      if(data.Response === 'False') {
-        setErrorMessage(data.Error || 'Failed to fetch movies');
-        setMovieList([]);
-        return;
-      }
-
       setMovieList(data.results || []);
       
       if (query && data.results.length > 0) {
         await updateSearchCount(query, data.results[0]);
       }
     } catch (error) {
-      console.error(`Error fetching movies: ${error}`);
-      setErrorMessage('Error fetching movies. Please try again later.');
+      console.error(error);
+      setErrorMessage('Failed to fetch movies. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +61,7 @@ const App = () => {
       const data = await response.json();
       setPopularMovies(data.results.slice(0, 10) || []);
     } catch (error) {
-      console.error('Error fetching popular movies:', error);
+      console.error(error);
     }
   };
 
@@ -82,7 +70,7 @@ const App = () => {
       const trending = await getTrendingMovies();
       setTrendingMovies(trending);
     } catch (error) {
-      console.error('Error fetching trending movies:', error);
+      console.error(error);
     }
   };
 
@@ -106,10 +94,9 @@ const App = () => {
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
 
-        {/* Error Message Display */}
         {errorMessage && (
-           <div className="mt-10 bg-red-500/10 border border-red-500/50 p-4 rounded-lg">
-             <p className="text-red-500 text-center">{errorMessage}</p>
+           <div className="mt-10 bg-red-500/10 border border-red-500 p-4 rounded-lg text-center text-red-500">
+             {errorMessage}
            </div>
         )}
 
@@ -120,7 +107,7 @@ const App = () => {
                 <h2>Trending Movies</h2>
                 <ul>
                   {trendingMovies.map((movie, index) => (
-                    <li key={movie.$id} className="cursor-pointer" onClick={() => setSelectedMovieId(movie.movie_id)}>
+                    <li key={movie.$id} className="cursor-pointer transition-transform hover:scale-105" onClick={() => setSelectedMovieId(movie.movie_id)}>
                         <p>{index + 1}</p>
                         <img src={movie.poster_url} alt={movie.searchTerm} />
                     </li>
@@ -130,23 +117,21 @@ const App = () => {
             )}
 
             {popularMovies.length > 0 && (
-              <section className="popular-shelf mt-12">
+              <section className="mt-12">
                 <h2 className="mb-6">Global Popular Hits</h2>
-                <div className="shelf-container">
+                <div className="flex flex-row overflow-x-auto gap-6 pb-6">
                   {popularMovies.map((movie) => (
                     <div 
                       key={movie.id} 
-                      className="shelf-item group"
+                      className="min-w-[160px] sm:min-w-[200px] cursor-pointer group"
                       onClick={() => setSelectedMovieId(movie.id)}
                     >
-                      <div className="shelf-card">
+                      <div className="relative overflow-hidden rounded-xl border border-white/10 group-hover:border-indigo-500 transition-all duration-300">
                         <img 
                           src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`} 
                           alt={movie.title} 
+                          className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-500"
                         />
-                        <div className="shelf-overlay">
-                            <span className="text-white text-xs font-bold line-clamp-1">{movie.title}</span>
-                        </div>
                       </div>
                     </div>
                   ))}
@@ -157,12 +142,9 @@ const App = () => {
         )}
 
         <section className="all-movies">
-          <h2 className="mt-10">{searchTerm ? `Search Results for "${searchTerm}"` : 'Discover More'}</h2>
-
-          {isLoading ? (
-            <Spinner/>
-          ) : (
-            <ul>
+          <h2 className="mt-10">{searchTerm ? `Results for "${searchTerm}"` : 'All Movies'}</h2>
+          {isLoading ? <Spinner/> : (
+            <ul className="animate-fade-in">
               {movieList.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} onClick={() => setSelectedMovieId(movie.id)} />
               ))}
