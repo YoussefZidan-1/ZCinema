@@ -51,10 +51,10 @@ public/hero.webp
 public/logo.png
 public/no-movie.png
 README.md
-src/App.css
 src/App.jsx
 src/appwrite.js
 src/components/MovieCard.jsx
+src/components/MovieDetails.jsx
 src/components/Search.jsx
 src/components/Spinner.jsx
 src/index.css
@@ -148,10 +148,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 </file>
 
-<file path="src/App.css">
-
-</file>
-
 <file path="src/components/Search.jsx">
 import React from 'react'
 
@@ -228,39 +224,6 @@ export default defineConfig({
 })
 </file>
 
-<file path="package.json">
-{
-  "name": "zcinema",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.2.2",
-    "appwrite": "^24.0.0",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-use": "^17.6.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.4",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^9.39.4",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.4.0",
-    "vite": "^8.0.1"
-  }
-}
-</file>
-
 <file path="src/appwrite.js">
 import { Client, Databases, ID, Query } from 'appwrite';
 
@@ -314,38 +277,114 @@ export const getTrendingMovies = async () => {
 };
 </file>
 
-<file path="src/components/MovieCard.jsx">
-// MovieCard.jsx
-import React from 'react';
+<file path="src/components/MovieDetails.jsx">
+import { useEffect, useState } from 'react';
+import Spinner from './Spinner';
 
-const MovieCard = ({ movie: {title, vote_average, poster_path, release_date, original_language} }) => {
-    return (
-        <div className="movie-card">
-            <img 
-                src={poster_path ? `https://image.tmdb.org/t/p/w342${poster_path}` : '/no-movie.png'} 
-                alt={title}
-                width="342"
-                height="513"
-                loading="lazy"
-            />
-            <div className="mt-4">
-                <h3 className="text-white">{title}</h3>
-                <div className="content">
-                    <div className="rating">
-                        <img src="./star.svg" alt="rating icon" width="16" height="16" />
-                        <p>{vote_average ? vote_average.toFixed(1) : 'N/A'}</p>
-                    </div>
-                    <span>•</span>
-                    <p className='lang'>{original_language}</p>
-                    <span>•</span>
-                    <p className='year'>{release_date ? release_date.split('-')[0] : 'N/A'}</p>
-                </div>
-            </div>
+const API_BASE_URL = 'https://api.themoviedb.org/3';
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
+const MovieDetails = ({ movieId, onClose }) => {
+  const [details, setDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFullDetails = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/movie/${movieId}?append_to_response=videos,credits`,
+          { headers: { accept: 'application/json', Authorization: `Bearer ${API_KEY}` } }
+        );
+        const data = await response.json();
+        setDetails(data);
+      } catch (err) { console.error(err); } 
+      finally { setLoading(false); }
+    };
+    fetchFullDetails();
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [movieId]);
+
+  if (loading) return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+      <Spinner />
+    </div>
+  );
+
+  const trailer = details?.videos?.results?.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+      <div className="relative bg-dark-100 max-w-4xl w-full max-h-[90vh] rounded-3xl overflow-y-auto shadow-2xl border border-white/10 animate-zoom-in" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-5 right-5 z-50 bg-black/50 text-white w-10 h-10 rounded-full hover:bg-white/20 transition-all flex items-center justify-center">✕</button>
+
+        <div className="aspect-video w-full bg-black">
+          {trailer ? (
+            <iframe className="w-full h-full" src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1`} frameBorder="0" allowFullScreen></iframe>
+          ) : (
+            <img src={`https://image.tmdb.org/t/p/original${details.backdrop_path}`} className="w-full h-full object-cover opacity-60" />
+          )}
         </div>
-    );
+
+        <div className="p-8">
+          <h2 className="text-4xl font-bold text-white mb-4">{details.title}</h2>
+          <div className="flex items-center gap-4 mb-6">
+            <span className="text-green-500 font-bold">{Math.round(details.vote_average * 10)}% Score</span>
+            <span className="text-gray-400">{details.release_date?.split('-')[0]}</span>
+            <span className="text-gray-400">{details.runtime} min</span>
+          </div>
+          <p className="text-white/80 text-lg mb-8 leading-relaxed">{details.overview}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+            <div>
+              <h3 className="text-gray-500 uppercase font-bold mb-2">Cast</h3>
+              <p className="text-white">{details.credits?.cast?.slice(0, 5).map(c => c.name).join(', ')}</p>
+            </div>
+            <div>
+              <h3 className="text-gray-500 uppercase font-bold mb-2">Genres</h3>
+              <p className="text-white">{details.genres?.map(g => g.name).join(', ')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default MovieCard;
+export default MovieDetails;
+</file>
+
+<file path="package.json">
+{
+  "name": "zcinema",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.4",
+    "appwrite": "^24.0.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-use": "^17.6.0",
+    "tailwindcss": "^4.2.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "vite": "^8.0.1"
+  }
+}
 </file>
 
 <file path="index.html">
@@ -406,14 +445,45 @@ A modern, high-performance web application designed to help users discover trend
    git clone https://github.com/YoussefZidan-1/ZCinema.git
 </file>
 
+<file path="src/components/MovieCard.jsx">
+const MovieCard = ({ movie: {title, vote_average, poster_path, release_date, original_language}, onClick }) => {
+    return (
+        <div className="movie-card cursor-pointer" onClick={onClick}>
+            <img 
+                src={poster_path ? `https://image.tmdb.org/t/p/w342${poster_path}` : '/no-movie.png'} 
+                alt={title}
+                width="342"
+                height="513"
+                loading="lazy"
+            />
+            <div className="mt-4">
+                <h3 className="text-white">{title}</h3>
+                <div className="content">
+                    <div className="rating">
+                        <img src="./star.svg" alt="rating icon" width="16" height="16" />
+                        <p>{vote_average ? vote_average.toFixed(1) : 'N/A'}</p>
+                    </div>
+                    <span className="text-gray-100">•</span>
+                    <p className='lang text-gray-100'>{original_language}</p>
+                    <span className="text-gray-100">•</span>
+                    <p className='year text-gray-100'>{release_date ? release_date.split('-')[0] : 'N/A'}</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default MovieCard;
+</file>
+
 <file path="src/App.jsx">
-// App.jsx
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'react-use';
 import { updateSearchCount, getTrendingMovies } from './appwrite';
 import Search from './components/Search';
 import Spinner from './components/Spinner';
 import MovieCard from './components/MovieCard';
+import MovieDetails from './components/MovieDetails';
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -430,9 +500,11 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [movieList, setMovieList] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
+  const [popularMovies, setPopularMovies] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  const [selectedMovieId, setSelectedMovieId] = useState(null);
   
   useDebounce(() => {
     setDebouncedSearchTerm(searchTerm);
@@ -441,30 +513,34 @@ const App = () => {
   const fetchMovies = async (query = '') => {
     setIsLoading(true);
     setErrorMessage('');
-
     try {
       const endpoint = query 
         ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
         : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
 
       const response = await fetch(endpoint, API_OPTIONS);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch movies');
-      }
-
+      if (!response.ok) throw new Error('Failed to fetch movies');
       const data = await response.json();
       setMovieList(data.results || []);
       
       if (query && data.results.length > 0) {
         await updateSearchCount(query, data.results[0]);
       }
-
     } catch (error) {
-      console.error('Error fetching movies:', error);
+      console.error(error);
       setErrorMessage('Failed to fetch movies. Please try again later.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchPopularMovies = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/movie/popular?language=en-US&page=1`, API_OPTIONS);
+      const data = await response.json();
+      setPopularMovies(data.results.slice(0, 10) || []);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -473,7 +549,7 @@ const App = () => {
       const trending = await getTrendingMovies();
       setTrendingMovies(trending);
     } catch (error) {
-      console.error('Error fetching trending movies:', error);
+      console.error(error);
     }
   };
 
@@ -483,6 +559,7 @@ const App = () => {
 
   useEffect(() => {
     fetchTrendingMovies();
+    fetchPopularMovies();
   }, []);
   
   return (
@@ -491,53 +568,73 @@ const App = () => {
 
       <div className="wrapper">
         <header>
-          <img 
-            src="/hero.webp" 
-            alt="Hero Banner" 
-            fetchPriority="high" 
-            width="1000" 
-            height="400" 
-          />
+          <img src="/hero.webp" alt="Hero Banner" width="1000" height="400" />
           <h1>Find <span className="text-gradient">Movies</span> You'll Enjoy Without The Hassle</h1>
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
 
-        {trendingMovies.length > 0 && (
-          <section className="trending">
-            <h2>Trending Movies</h2>
-            <ul>
-              {trendingMovies.map((movie, index) => (
-                <li key={movie.$id}>
-                    <p>{index + 1}</p>
-                    <img 
-                      src={movie.poster_url.replace('w500', 'w200')} 
-                      alt={movie.searchTerm} 
-                      width="127" 
-                      height="163" 
-                      loading="lazy" 
-                    />
-                </li>
-              ))}
-            </ul>
-          </section>
+        {errorMessage && (
+           <div className="mt-10 bg-red-500/10 border border-red-500 p-4 rounded-lg text-center text-red-500">
+             {errorMessage}
+           </div>
+        )}
+
+        {!searchTerm && !errorMessage && (
+          <>
+            {trendingMovies.length > 0 && (
+              <section className="trending">
+                <h2>Trending Movies</h2>
+                <ul>
+                  {trendingMovies.map((movie, index) => (
+                    <li key={movie.$id} className="cursor-pointer transition-transform hover:scale-105" onClick={() => setSelectedMovieId(movie.movie_id)}>
+                        <p>{index + 1}</p>
+                        <img src={movie.poster_url} alt={movie.searchTerm} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {popularMovies.length > 0 && (
+              <section className="mt-12">
+                <h2 className="mb-6">Global Popular Hits</h2>
+                <div className="flex flex-row overflow-x-auto gap-6 pb-6">
+                  {popularMovies.map((movie) => (
+                    <div 
+                      key={movie.id} 
+                      className="min-w-[160px] sm:min-w-[200px] cursor-pointer group"
+                      onClick={() => setSelectedMovieId(movie.id)}
+                    >
+                      <div className="relative overflow-hidden rounded-xl border border-white/10 group-hover:border-indigo-500 transition-all duration-300">
+                        <img 
+                          src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`} 
+                          alt={movie.title} 
+                          className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
         )}
 
         <section className="all-movies">
-          <h2 className="mt-10">All Movies</h2>
-
-          {isLoading ? (
-            <Spinner/>
-          ) : errorMessage ? (
-            <p className="text-red-500">{errorMessage}</p>
-          ) : (
-            <ul>
+          <h2 className="mt-10">{searchTerm ? `Results for "${searchTerm}"` : 'All Movies'}</h2>
+          {isLoading ? <Spinner/> : (
+            <ul className="animate-fade-in">
               {movieList.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
+                <MovieCard key={movie.id} movie={movie} onClick={() => setSelectedMovieId(movie.id)} />
               ))}
             </ul>
           )}
         </section>
       </div>
+
+      {selectedMovieId && (
+        <MovieDetails movieId={selectedMovieId} onClose={() => setSelectedMovieId(null)} />
+      )}
     </main>
   );
 };
@@ -546,27 +643,49 @@ export default App;
 </file>
 
 <file path="src/index.css">
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
-
 @import "tailwindcss";
 
 @theme {
+  --breakpoint-xs: 480px; /* Fixed the build error */
   --color-primary: #030014;
   --color-light-100: #cecefb;
   --color-light-200: #a8b5db;
   --color-gray-100: #9ca4ab;
   --color-dark-100: #0f0d23;
-  --font-dm-sans: DM Sans, sans-serif, Arial;
-  --breakpoint-xs: 480px;
+  --font-dm-sans: "DM Sans", sans-serif, Arial;
   --background-image-hero-pattern: url("/hero-bg.webp");
 }
 
+/* ==========================================================================
+   VISIBLE CUSTOM SCROLLBAR
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 10px; /* Vertical scrollbar width */
+  height: 8px;  /* Horizontal scrollbar height */
+}
+
+::-webkit-scrollbar-track {
+  background: #030014;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a1f7c; /* Indigo color */
+  border-radius: 10px;
+  border: 2px solid #030014;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4400ff;
+}
+
+/* ==========================================================================
+   BASE UI (PRESERVING YOUR ORIGINAL LOOK)
+   ========================================================================== */
 @layer base {
   body {
     font-family: "DM Sans", serif;
-    font-optical-sizing: auto;
     background: #030014;
+    color: white;
   }
 
   h1 {
@@ -590,169 +709,101 @@ export default App;
   }
 }
 
-@layer components {
-  .pattern {
-    @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
-  }
-
-  .wrapper {
-    @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
-  }
-
-  .trending {
-    @apply mt-20;
-
-    & ul {
-      @apply flex flex-row overflow-y-auto gap-5 -mt-10 w-full hide-scrollbar;
-    }
-
-    & ul li {
-      @apply min-w-[230px] flex flex-row items-center;
-    }
-
-    & ul li p {
-      @apply fancy-text mt-[22px] text-nowrap;
-    }
-
-    & ul li img {
-      @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5;
-      aspect-ratio: 127/163;
-      flex-shrink: 0;
-    }
-  }
-
-  .search {
-    @apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto;
-    transition: box-shadow 0.35s ease, border-color 0.35s ease;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0);
-
-    &:focus-within {
-      border-color: rgba(104, 105, 255, 0.8);
-      box-shadow: 0 0 30px rgba(119, 35, 255, 0.4);
-      background: linear-gradient(135deg, rgba(42, 31, 124, 0.75), rgba(29, 25, 92, 0.5));
-    }
-
-    & div {
-      @apply relative flex items-center;
-    }
-
-    & img {
-      @apply absolute left-2 h-5 w-5;
-    }
-
-    & input {
-      @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-hidden;
-      border: 1px solid transparent;
-      transition: box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
-      background: transparent;
-    }
-
-    & input:focus {
-      outline: none;
-      border-color: rgba(147, 100, 255, 0.85);
-      box-shadow: 0 0 20px rgba(147, 100, 255, 0.35);
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    &:not(:focus-within) {
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.25);
-      background: rgba(255, 255, 255, 0.02);
-    }
-  }
-
-  .all-movies {
-    @apply space-y-9;
-
-    & ul {
-      @apply grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
-    }
-  }
-
-  .movie-card {
-    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10;
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
-    transform-origin: center;
-    border: 1px solid rgba(96, 9, 227, 0);
-
-    &:hover {
-      transform: scale(1.03);
-      box-shadow: 0 16px 30px rgba(96, 9, 227, 0.45);
-      border-color: rgba(96, 9, 227, 0.65);
-      animation: borderPulse 1.3s ease-in-out infinite;
-    }
-
-    &:not(:hover) {
-      animation: none;
-      border-color: rgba(96, 9, 227, 0);
-      box-shadow: 0 12px 18px rgba(0, 0, 0, 0.2);
-    }
-
-    & img {
-      @apply rounded-lg w-full;
-      aspect-ratio: 2/3;
-      object-fit: cover;
-      background-color: #0f0d23;
-    }
-
-    & h3 {
-      @apply text-white font-bold text-base line-clamp-1;
-    }
-
-    & .content {
-      @apply mt-2 flex flex-row items-center flex-wrap gap-2;
-    }
-
-    & .rating {
-      @apply flex flex-row items-center gap-1;
-    }
-
-    & .rating img {
-      @apply size-4 object-contain;
-    }
-
-    & .rating p {
-      @apply font-bold text-base text-white;
-    }
-
-    & .content span {
-      @apply text-sm text-gray-100;
-    }
-
-    & .content .lang {
-      @apply capitalize text-gray-100 font-medium text-base;
-    }
-
-    & .content .year {
-      @apply text-gray-100 font-medium text-base;
-    }
-  }
-
-  @keyframes borderPulse {
-    0%, 100% {
-      border-color: rgba(96, 9, 227, 0.65);
-      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.45);
-    }
-    50% {
-      border-color: rgba(163, 81, 255, 0.9);
-      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.6);
-    }
-  }
+/* ==========================================================================
+   COMPONENTS (YOUR ORIGINAL UI)
+   ========================================================================== */
+.pattern {
+  @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
 }
 
-@utility text-gradient {
+.wrapper {
+  @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
+}
+
+.trending {
+  @apply mt-20;
+}
+
+.trending ul {
+  @apply flex flex-row overflow-x-auto gap-5 -mt-10 w-full pb-4;
+}
+
+.trending ul li {
+  @apply min-w-[230px] flex flex-row items-center;
+}
+
+.trending ul li p {
+  @apply fancy-text mt-[22px] text-nowrap;
+}
+
+.trending ul li img {
+  @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5;
+  aspect-ratio: 127/163;
+  flex-shrink: 0;
+}
+
+.search {
+  @apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto border border-white/15;
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.search:focus-within {
+  border-color: rgba(104, 105, 255, 0.8);
+  box-shadow: 0 0 30px rgba(119, 35, 255, 0.4);
+  background: linear-gradient(135deg, rgba(42, 31, 124, 0.75), rgba(29, 25, 92, 0.5));
+}
+
+.search input {
+  @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-none;
+}
+
+.all-movies {
+  @apply space-y-9;
+}
+
+.all-movies ul {
+  @apply grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+}
+
+.movie-card {
+  @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10 border border-transparent;
+  transition: all 0.25s ease;
+}
+
+.movie-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 16px 30px rgba(96, 9, 227, 0.45);
+  border-color: rgba(96, 9, 227, 0.65);
+  animation: borderPulse 1.3s ease-in-out infinite;
+}
+
+@keyframes borderPulse {
+  0%, 100% { border-color: rgba(96, 9, 227, 0.65); }
+  50% { border-color: rgba(163, 81, 255, 0.9); }
+}
+
+.movie-card img {
+  @apply rounded-lg w-full aspect-[2/3] object-cover bg-dark-100;
+}
+
+.movie-card h3 {
+  @apply text-white font-bold text-base line-clamp-1 mt-4;
+}
+
+.movie-card .content {
+  @apply mt-2 flex flex-row items-center flex-wrap gap-2;
+}
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+.text-gradient {
   background: linear-gradient(90deg, #4400ff, #a27dff, #00e7ff, #28b5ff, #4400ff);
   background-size: 400% 400%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: transparent;
   animation: gradientShift 6s ease infinite;
-}
-
-.text-gradient:hover {
-  animation-play-state: paused;
 }
 
 @keyframes gradientShift {
@@ -761,19 +812,29 @@ export default App;
   100% { background-position: 0% 50%; }
 }
 
-@utility fancy-text {
+.fancy-text {
   -webkit-text-stroke: 5px rgba(206, 206, 251, 0.5);
   font-size: 190px;
   font-family: "Bebas Neue", sans-serif;
+  color: transparent;
 }
 
-@utility hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-zoom-in {
+  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 </file>
 
