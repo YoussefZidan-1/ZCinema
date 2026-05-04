@@ -1,10 +1,10 @@
-// App.jsx
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'react-use';
 import { updateSearchCount, getTrendingMovies } from './appwrite';
 import Search from './components/Search';
 import Spinner from './components/Spinner';
 import MovieCard from './components/MovieCard';
+import MovieDetails from './components/MovieDetails'; // Import the new modal
 
 const API_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -25,6 +25,9 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   
+  // NEW STATE FOR MODAL
+  const [selectedMovieId, setSelectedMovieId] = useState(null);
+  
   useDebounce(() => {
     setDebouncedSearchTerm(searchTerm);
   }, 1000, [searchTerm]);
@@ -40,9 +43,7 @@ const App = () => {
 
       const response = await fetch(endpoint, API_OPTIONS);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch movies');
-      }
+      if (!response.ok) throw new Error('Failed to fetch movies');
 
       const data = await response.json();
       setMovieList(data.results || []);
@@ -82,13 +83,7 @@ const App = () => {
 
       <div className="wrapper">
         <header>
-          <img 
-            src="/hero.webp" 
-            alt="Hero Banner" 
-            fetchPriority="high" 
-            width="1000" 
-            height="400" 
-          />
+          <img src="/hero.webp" alt="Hero Banner" width="1000" height="400" />
           <h1>Find <span className="text-gradient">Movies</span> You'll Enjoy Without The Hassle</h1>
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
@@ -98,14 +93,11 @@ const App = () => {
             <h2>Trending Movies</h2>
             <ul>
               {trendingMovies.map((movie, index) => (
-                <li key={movie.$id}>
+                <li key={movie.$id} className="cursor-pointer" onClick={() => setSelectedMovieId(movie.movie_id)}>
                     <p>{index + 1}</p>
                     <img 
                       src={movie.poster_url.replace('w500', 'w200')} 
                       alt={movie.searchTerm} 
-                      width="127" 
-                      height="163" 
-                      loading="lazy" 
                     />
                 </li>
               ))}
@@ -123,12 +115,24 @@ const App = () => {
           ) : (
             <ul>
               {movieList.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
+                <MovieCard 
+                    key={movie.id} 
+                    movie={movie} 
+                    onClick={() => setSelectedMovieId(movie.id)} // Pass ID to state
+                />
               ))}
             </ul>
           )}
         </section>
       </div>
+
+      {/* MODAL COMPONENT */}
+      {selectedMovieId && (
+        <MovieDetails 
+            movieId={selectedMovieId} 
+            onClose={() => setSelectedMovieId(null)} 
+        />
+      )}
     </main>
   );
 };
