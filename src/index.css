@@ -258,3 +258,37 @@
 @utility z-100 {
   z-index: 100;
 }
+
+/* Add these to your index.css */
+
+.popular-shelf h2 {
+  @apply text-2xl font-bold text-white sm:text-3xl mb-6;
+}
+
+/* Horizontal scroll styling */
+.popular-shelf div.flex {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.popular-shelf div.flex::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+/* Entry Animation */
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Snap scrolling for better feel on mobile */
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+.snap-start {
+  scroll-snap-align: start;
+}
