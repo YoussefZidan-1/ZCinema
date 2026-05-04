@@ -1,0 +1,780 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: **/*.svg
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+eslint.config.js
+index.html
+LICENSE
+package.json
+public/hero-bg.webp
+public/hero.webp
+public/logo.png
+public/no-movie.png
+README.md
+src/App.css
+src/App.jsx
+src/appwrite.js
+src/components/MovieCard.jsx
+src/components/Search.jsx
+src/components/Spinner.jsx
+src/index.css
+src/main.jsx
+vite.config.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+])
+</file>
+
+<file path="LICENSE">
+MIT License
+
+Copyright (c) 2026 Youssef Zidan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</file>
+
+<file path="src/App.css">
+
+</file>
+
+<file path="src/components/Search.jsx">
+import React from 'react'
+
+const Search = ({ searchTerm, setSearchTerm }) => {
+    return (
+        <div className='search'>
+            <div>
+                <img src="./search.svg" alt="search image"/>
+                <input 
+                    type='text'
+                    placeholder='Search through thousands movies'
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        </div>
+    )
+}
+
+export default Search
+</file>
+
+<file path="src/components/Spinner.jsx">
+import React from "react";
+
+const Spinner = () => {
+  return (
+    <div role="status">
+      <svg
+        aria-hidden="true"
+        className="w-8 h-8 text-neutral-tertiary animate-spin fill-indigo-600"
+        viewBox="0 0 100 101"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+          fill="currentColor"
+        />
+        <path
+          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+          fill="currentFill"
+        />
+      </svg>
+      <span className="sr-only">Loading...</span>
+    </div>
+  );
+};
+
+export default Spinner;
+</file>
+
+<file path="src/main.jsx">
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  
+    <App />
+  
+)
+</file>
+
+<file path="vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react(), tailwindcss(),],
+})
+</file>
+
+<file path="package.json">
+{
+  "name": "zcinema",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "appwrite": "^24.0.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-use": "^17.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "vite": "^8.0.1"
+  }
+}
+</file>
+
+<file path="src/appwrite.js">
+import { Client, Databases, ID, Query } from 'appwrite';
+
+const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
+const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
+const COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
+
+const client = new Client()
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject(PROJECT_ID);
+
+const database = new Databases(client);
+
+export const updateSearchCount = async (searchTerm, movie) => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.equal('searchTerm', searchTerm),
+        ]);
+
+        if (result.documents.length > 0) {
+            const doc = result.documents[0];
+
+            await database.updateDocument(DATABASE_ID, COLLECTION_ID, doc.$id, {
+                count: doc.count + 1,
+            });
+        } else {
+            await database.createDocument(DATABASE_ID, COLLECTION_ID, ID.unique(), {
+                searchTerm,
+                count: 1,
+                movie_id: movie.id,
+                poster_url: `https://image.tmdb.org/t/p/w200${movie.poster_path}`,
+            });
+        }
+    } catch (error) {
+        console.error('Error updating search count:', error);
+    }
+};
+
+export const getTrendingMovies = async () => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+            Query.limit(5),
+            Query.orderDesc("count")
+        ]);
+
+        return result.documents;
+    } catch (error) {
+        console.error('Error fetching trending movies:', error);
+        return [];
+    }
+};
+</file>
+
+<file path="src/components/MovieCard.jsx">
+// MovieCard.jsx
+import React from 'react';
+
+const MovieCard = ({ movie: {title, vote_average, poster_path, release_date, original_language} }) => {
+    return (
+        <div className="movie-card">
+            <img 
+                src={poster_path ? `https://image.tmdb.org/t/p/w342${poster_path}` : '/no-movie.png'} 
+                alt={title}
+                width="342"
+                height="513"
+                loading="lazy"
+            />
+            <div className="mt-4">
+                <h3 className="text-white">{title}</h3>
+                <div className="content">
+                    <div className="rating">
+                        <img src="./star.svg" alt="rating icon" width="16" height="16" />
+                        <p>{vote_average ? vote_average.toFixed(1) : 'N/A'}</p>
+                    </div>
+                    <span>•</span>
+                    <p className='lang'>{original_language}</p>
+                    <span>•</span>
+                    <p className='year'>{release_date ? release_date.split('-')[0] : 'N/A'}</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default MovieCard;
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>ZCinema — Find Movies You'll Enjoy</title>
+    <meta name="description" content="ZCinema - Discover trending movies, ratings, and details using React and TMDB API. Built by ZED Studios." />
+
+    <link rel="preconnect" href="https://api.themoviedb.org" crossorigin/>
+    <link rel="preconnect" href="https://image.tmdb.org" crossorigin/>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="README.md">
+# 🎬 Movie Vault | Find Movies Without The Hassle
+
+![Hero Banner](/public/hero.webp)
+
+## 👤 Developed by: Youssef Zidan
+A modern, high-performance web application designed to help users discover trending movies and search for their favorites seamlessly. Built with a focus on speed, clean UI, and real-time data integration.
+
+---
+
+## 🚀 Features
+
+- **Real-time Movie Search:** Instantly find any movie using the TMDB API.
+- **Trending System:** Automatically tracks and displays the most searched movies using **Appwrite** as a backend.
+- **Optimized Performance:** Implemented **Debouncing** to minimize API calls and enhance user experience.
+- **Responsive Design:** Fully responsive UI built with **Tailwind CSS v4** for a premium look on all devices.
+- **Modern Tech Stack:** Powered by **React 19** and **Vite 8** for the ultimate developer experience.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React 19
+- **Styling:** Tailwind CSS v4
+- **Backend/Database:** Appwrite
+- **API:** TMDB (The Movie Database)
+- **Bundler:** Vite 8
+
+---
+
+## 📦 Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/YoussefZidan-1/ZCinema.git
+</file>
+
+<file path="src/App.jsx">
+// App.jsx
+import { useState, useEffect } from 'react';
+import { useDebounce } from 'react-use';
+import { updateSearchCount, getTrendingMovies } from './appwrite';
+import Search from './components/Search';
+import Spinner from './components/Spinner';
+import MovieCard from './components/MovieCard';
+
+const API_BASE_URL = 'https://api.themoviedb.org/3';
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
+const API_OPTIONS = {
+  method: 'GET',
+  headers: {
+    accept: 'application/json',
+    Authorization: `Bearer ${API_KEY}`
+  }
+};
+
+const App = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [movieList, setMovieList] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  
+  useDebounce(() => {
+    setDebouncedSearchTerm(searchTerm);
+  }, 1000, [searchTerm]);
+
+  const fetchMovies = async (query = '') => {
+    setIsLoading(true);
+    setErrorMessage('');
+
+    try {
+      const endpoint = query 
+        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+
+      const response = await fetch(endpoint, API_OPTIONS);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch movies');
+      }
+
+      const data = await response.json();
+      setMovieList(data.results || []);
+      
+      if (query && data.results.length > 0) {
+        await updateSearchCount(query, data.results[0]);
+      }
+
+    } catch (error) {
+      console.error('Error fetching movies:', error);
+      setErrorMessage('Failed to fetch movies. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchTrendingMovies = async () => {
+    try {
+      const trending = await getTrendingMovies();
+      setTrendingMovies(trending);
+    } catch (error) {
+      console.error('Error fetching trending movies:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    fetchTrendingMovies();
+  }, []);
+  
+  return (
+    <main>
+      <div className="pattern" />
+
+      <div className="wrapper">
+        <header>
+          <img 
+            src="/hero.webp" 
+            alt="Hero Banner" 
+            fetchPriority="high" 
+            width="1000" 
+            height="400" 
+          />
+          <h1>Find <span className="text-gradient">Movies</span> You'll Enjoy Without The Hassle</h1>
+          <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        </header>
+
+        {trendingMovies.length > 0 && (
+          <section className="trending">
+            <h2>Trending Movies</h2>
+            <ul>
+              {trendingMovies.map((movie, index) => (
+                <li key={movie.$id}>
+                    <p>{index + 1}</p>
+                    <img 
+                      src={movie.poster_url.replace('w500', 'w200')} 
+                      alt={movie.searchTerm} 
+                      width="127" 
+                      height="163" 
+                      loading="lazy" 
+                    />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section className="all-movies">
+          <h2 className="mt-10">All Movies</h2>
+
+          {isLoading ? (
+            <Spinner/>
+          ) : errorMessage ? (
+            <p className="text-red-500">{errorMessage}</p>
+          ) : (
+            <ul>
+              {movieList.map((movie) => (
+                <MovieCard key={movie.id} movie={movie} />
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+};
+
+export default App;
+</file>
+
+<file path="src/index.css">
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #030014;
+  --color-light-100: #cecefb;
+  --color-light-200: #a8b5db;
+  --color-gray-100: #9ca4ab;
+  --color-dark-100: #0f0d23;
+  --font-dm-sans: DM Sans, sans-serif, Arial;
+  --breakpoint-xs: 480px;
+  --background-image-hero-pattern: url("/hero-bg.webp");
+}
+
+@layer base {
+  body {
+    font-family: "DM Sans", serif;
+    font-optical-sizing: auto;
+    background: #030014;
+  }
+
+  h1 {
+    @apply mx-auto max-w-4xl text-center text-5xl font-bold leading-tight tracking-[-1%] text-white sm:text-[64px] sm:leading-[76px];
+  }
+
+  h2 {
+    @apply text-2xl font-bold text-white sm:text-3xl;
+  }
+
+  main {
+    @apply min-h-screen relative bg-primary;
+  }
+
+  header {
+    @apply sm:mt-10 mt-5;
+  }
+
+  header img {
+    @apply w-full max-w-lg h-auto object-contain mx-auto drop-shadow-md;
+  }
+}
+
+@layer components {
+  .pattern {
+    @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
+  }
+
+  .wrapper {
+    @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
+  }
+
+  .trending {
+    @apply mt-20;
+
+    & ul {
+      @apply flex flex-row overflow-y-auto gap-5 -mt-10 w-full hide-scrollbar;
+    }
+
+    & ul li {
+      @apply min-w-[230px] flex flex-row items-center;
+    }
+
+    & ul li p {
+      @apply fancy-text mt-[22px] text-nowrap;
+    }
+
+    & ul li img {
+      @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5;
+      aspect-ratio: 127/163;
+      flex-shrink: 0;
+    }
+  }
+
+  .search {
+    @apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto;
+    transition: box-shadow 0.35s ease, border-color 0.35s ease;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0);
+
+    &:focus-within {
+      border-color: rgba(104, 105, 255, 0.8);
+      box-shadow: 0 0 30px rgba(119, 35, 255, 0.4);
+      background: linear-gradient(135deg, rgba(42, 31, 124, 0.75), rgba(29, 25, 92, 0.5));
+    }
+
+    & div {
+      @apply relative flex items-center;
+    }
+
+    & img {
+      @apply absolute left-2 h-5 w-5;
+    }
+
+    & input {
+      @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-hidden;
+      border: 1px solid transparent;
+      transition: box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+      background: transparent;
+    }
+
+    & input:focus {
+      outline: none;
+      border-color: rgba(147, 100, 255, 0.85);
+      box-shadow: 0 0 20px rgba(147, 100, 255, 0.35);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &:not(:focus-within) {
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.25);
+      background: rgba(255, 255, 255, 0.02);
+    }
+  }
+
+  .all-movies {
+    @apply space-y-9;
+
+    & ul {
+      @apply grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+    }
+  }
+
+  .movie-card {
+    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+    transform-origin: center;
+    border: 1px solid rgba(96, 9, 227, 0);
+
+    &:hover {
+      transform: scale(1.03);
+      box-shadow: 0 16px 30px rgba(96, 9, 227, 0.45);
+      border-color: rgba(96, 9, 227, 0.65);
+      animation: borderPulse 1.3s ease-in-out infinite;
+    }
+
+    &:not(:hover) {
+      animation: none;
+      border-color: rgba(96, 9, 227, 0);
+      box-shadow: 0 12px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    & img {
+      @apply rounded-lg w-full;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      background-color: #0f0d23;
+    }
+
+    & h3 {
+      @apply text-white font-bold text-base line-clamp-1;
+    }
+
+    & .content {
+      @apply mt-2 flex flex-row items-center flex-wrap gap-2;
+    }
+
+    & .rating {
+      @apply flex flex-row items-center gap-1;
+    }
+
+    & .rating img {
+      @apply size-4 object-contain;
+    }
+
+    & .rating p {
+      @apply font-bold text-base text-white;
+    }
+
+    & .content span {
+      @apply text-sm text-gray-100;
+    }
+
+    & .content .lang {
+      @apply capitalize text-gray-100 font-medium text-base;
+    }
+
+    & .content .year {
+      @apply text-gray-100 font-medium text-base;
+    }
+  }
+
+  @keyframes borderPulse {
+    0%, 100% {
+      border-color: rgba(96, 9, 227, 0.65);
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.45);
+    }
+    50% {
+      border-color: rgba(163, 81, 255, 0.9);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.6);
+    }
+  }
+}
+
+@utility text-gradient {
+  background: linear-gradient(90deg, #4400ff, #a27dff, #00e7ff, #28b5ff, #4400ff);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradientShift 6s ease infinite;
+}
+
+.text-gradient:hover {
+  animation-play-state: paused;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@utility fancy-text {
+  -webkit-text-stroke: 5px rgba(206, 206, 251, 0.5);
+  font-size: 190px;
+  font-family: "Bebas Neue", sans-serif;
+}
+
+@utility hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+</file>
+
+</files>
