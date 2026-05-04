@@ -21,8 +21,8 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [movieList, setMovieList] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
-  const [popularMovies, setPopularMovies] = useState([]); // NEW STATE
-  const [errorMessage, setErrorMessage] = useState('');
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(''); // Now fully handled
   const [isLoading, setIsLoading] = useState(false);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [selectedMovieId, setSelectedMovieId] = useState(null);
@@ -33,29 +33,40 @@ const App = () => {
 
   const fetchMovies = async (query = '') => {
     setIsLoading(true);
-    setErrorMessage('');
+    setErrorMessage(''); // Clear previous errors
+
     try {
       const endpoint = query 
         ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
         : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
 
       const response = await fetch(endpoint, API_OPTIONS);
-      if (!response.ok) throw new Error('Failed to fetch movies');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch movies. Please check your network or API key.');
+      }
+
       const data = await response.json();
+
+      if(data.Response === 'False') {
+        setErrorMessage(data.Error || 'Failed to fetch movies');
+        setMovieList([]);
+        return;
+      }
+
       setMovieList(data.results || []);
       
       if (query && data.results.length > 0) {
         await updateSearchCount(query, data.results[0]);
       }
     } catch (error) {
-      console.error('Error fetching movies:', error);
-      setErrorMessage('Failed to fetch movies.');
+      console.error(`Error fetching movies: ${error}`);
+      setErrorMessage('Error fetching movies. Please try again later.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // NEW: Fetch Popular Movies from TMDB
   const fetchPopularMovies = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/movie/popular?language=en-US&page=1`, API_OPTIONS);
@@ -81,7 +92,7 @@ const App = () => {
 
   useEffect(() => {
     fetchTrendingMovies();
-    fetchPopularMovies(); // Fetch popular movies on load
+    fetchPopularMovies();
   }, []);
   
   return (
@@ -95,53 +106,63 @@ const App = () => {
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
 
-        {/* 1. TRENDING SECTION (From Appwrite) */}
-        {trendingMovies.length > 0 && !searchTerm && (
-          <section className="trending">
-            <h2>Trending Movies</h2>
-            <ul>
-              {trendingMovies.map((movie, index) => (
-                <li key={movie.$id} className="cursor-pointer transition-transform hover:scale-105 duration-300" onClick={() => setSelectedMovieId(movie.movie_id)}>
-                    <p>{index + 1}</p>
-                    <img src={movie.poster_url} alt={movie.searchTerm} />
-                </li>
-              ))}
-            </ul>
-          </section>
+        {/* Error Message Display */}
+        {errorMessage && (
+           <div className="mt-10 bg-red-500/10 border border-red-500/50 p-4 rounded-lg">
+             <p className="text-red-500 text-center">{errorMessage}</p>
+           </div>
         )}
 
-        {/* 2. POPULAR SECTION (New TMDB shelf) */}
-        {popularMovies.length > 0 && !searchTerm && (
-          <section className="popular-shelf mt-12 animate-fadeIn">
-            <h2 className="mb-6">Global Popular Hits</h2>
-            <div className="flex overflow-x-auto gap-6 pb-6 hide-scrollbar snap-x">
-              {popularMovies.map((movie) => (
-                <div 
-                  key={movie.id} 
-                  className="min-w-[160px] sm:min-w-[200px] snap-start cursor-pointer group"
-                  onClick={() => setSelectedMovieId(movie.id)}
-                >
-                  <div className="relative overflow-hidden rounded-xl border border-white/10 group-hover:border-indigo-500 transition-all duration-300">
-                    <img 
-                      src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`} 
-                      alt={movie.title} 
-                      className="w-full h-auto object-cover transform group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                        <span className="text-white text-xs font-bold line-clamp-1">{movie.title}</span>
+        {!searchTerm && !errorMessage && (
+          <>
+            {trendingMovies.length > 0 && (
+              <section className="trending">
+                <h2>Trending Movies</h2>
+                <ul>
+                  {trendingMovies.map((movie, index) => (
+                    <li key={movie.$id} className="cursor-pointer" onClick={() => setSelectedMovieId(movie.movie_id)}>
+                        <p>{index + 1}</p>
+                        <img src={movie.poster_url} alt={movie.searchTerm} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {popularMovies.length > 0 && (
+              <section className="popular-shelf mt-12">
+                <h2 className="mb-6">Global Popular Hits</h2>
+                <div className="shelf-container">
+                  {popularMovies.map((movie) => (
+                    <div 
+                      key={movie.id} 
+                      className="shelf-item group"
+                      onClick={() => setSelectedMovieId(movie.id)}
+                    >
+                      <div className="shelf-card">
+                        <img 
+                          src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`} 
+                          alt={movie.title} 
+                        />
+                        <div className="shelf-overlay">
+                            <span className="text-white text-xs font-bold line-clamp-1">{movie.title}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
+              </section>
+            )}
+          </>
         )}
 
-        {/* 3. ALL MOVIES SECTION */}
         <section className="all-movies">
           <h2 className="mt-10">{searchTerm ? `Search Results for "${searchTerm}"` : 'Discover More'}</h2>
-          {isLoading ? <Spinner/> : (
-            <ul className="animate-fadeIn">
+
+          {isLoading ? (
+            <Spinner/>
+          ) : (
+            <ul>
               {movieList.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} onClick={() => setSelectedMovieId(movie.id)} />
               ))}
