@@ -1,6 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
-
 @import "tailwindcss";
 
 @theme {
@@ -9,223 +6,133 @@
   --color-light-200: #a8b5db;
   --color-gray-100: #9ca4ab;
   --color-dark-100: #0f0d23;
-  --font-dm-sans: DM Sans, sans-serif, Arial;
-  --breakpoint-xs: 480px;
+  --font-dm-sans: "DM Sans", sans-serif;
   --background-image-hero-pattern: url("/hero-bg.webp");
+
+  /* Custom Animations for Tailwind v4 */
+  --animate-fade-in: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  --animate-zoom-in: zoomIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  --animate-gradient: gradientShift 6s ease infinite;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 }
 
-/* ==========================================================================
-   CUSTOM GLOBAL SCROLLBAR 
-   ========================================================================== */
+/* Global Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: #030014;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #6009e3, #4400ff);
+  background: linear-gradient(to bottom, #6366f1, #4338ca);
   border-radius: 10px;
   border: 2px solid #030014;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a27dff;
-}
-
-/* ==========================================================================
-   BASE STYLES
-   ========================================================================== */
+/* Base Styles */
 @layer base {
   body {
-    font-family: "DM Sans", serif;
-    background: #030014;
-    color: white;
-    overflow-x: hidden;
+    @apply bg-primary text-white font-dm-sans overflow-x-hidden;
   }
-
   h1 {
-    @apply mx-auto max-w-4xl text-center text-5xl font-bold leading-tight tracking-[-1%] text-white sm:text-[64px] sm:leading-[76px];
+    @apply mx-auto max-w-4xl text-center text-5xl font-bold leading-tight tracking-tight text-white sm:text-7xl;
   }
-
   h2 {
     @apply text-2xl font-bold text-white sm:text-3xl;
   }
-
-  main {
-    @apply min-h-screen relative bg-primary;
-  }
 }
 
-/* ==========================================================================
-   COMPONENTS
-   ========================================================================== */
-@layer components {
-  .pattern {
-    @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
-  }
-
-  .wrapper {
-    @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
-  }
-
-  /* Trending Section */
-  .trending {
-    @apply mt-20 animate-fadeIn;
-
-    & ul {
-      @apply flex flex-row overflow-x-auto gap-5 pb-5 -mt-10 w-full;
-    }
-
-    & ul li {
-      @apply min-w-[230px] flex flex-row items-center transition-all duration-500 hover:scale-105;
-    }
-
-    & ul li p {
-      @apply fancy-text mt-[22px];
-    }
-
-    & ul li img {
-      @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5 shadow-2xl;
-    }
-  }
-
-  /* Popular Shelf Section */
-  .popular-shelf {
-    @apply animate-fadeIn;
-    
-    & .shelf-container {
-      @apply flex flex-row overflow-x-auto gap-6 pb-6 snap-x;
-    }
-
-    & .shelf-item {
-      @apply min-w-[160px] sm:min-w-[200px] snap-start cursor-pointer;
-    }
-
-    & .shelf-card {
-      @apply relative overflow-hidden rounded-xl border border-white/10 transition-all duration-500 ease-in-out;
-      /* Border fade-out (normal state) */
-    }
-
-    & .shelf-item:hover .shelf-card {
-      @apply border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.4)];
-      /* Border fade-in (hover state) */
-    }
-
-    & .shelf-card img {
-      @apply w-full h-auto object-cover transition-transform duration-700 ease-in-out;
-    }
-
-    & .shelf-item:hover img {
-      @apply scale-110;
-    }
-    
-    & .shelf-overlay {
-        @apply absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 transition-opacity duration-500 flex items-end p-3;
-    }
-
-    & .shelf-item:hover .shelf-overlay {
-        @apply opacity-100;
-    }
-  }
-
-  /* Search Component */
-  .search {
-    @apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto border border-white/15 transition-all duration-500;
-
-    &:focus-within {
-      @apply border-indigo-500/80 bg-indigo-950/20 shadow-[0_0_30px_rgba(99,102,241,0.3)];
-    }
-
-    & input {
-      @apply w-full bg-transparent py-2 pl-10 text-base text-gray-200 placeholder-light-200 outline-none;
-    }
-  }
-
-  /* All Movies Grid & Movie Cards */
-  .all-movies ul {
-    @apply grid grid-cols-1 gap-6 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 animate-fadeIn;
-  }
-
-  .movie-card {
-    @apply bg-dark-100 p-5 rounded-2xl border border-transparent shadow-xl transition-all duration-500 ease-in-out cursor-pointer;
-    /* transition-all duration-500 ensures border and transform fade out smoothly when mouse leaves */
-
-    &:hover {
-      @apply border-indigo-500/60 -translate-y-2 shadow-[0_20px_40px_rgba(0,0,0,0.4),0_0_15px_rgba(99,102,241,0.2)];
-    }
-
-    & img {
-      @apply rounded-lg w-full aspect-[2/3] object-cover transition-transform duration-500;
-    }
-
-    &:hover img {
-      @apply scale-[1.02];
-    }
-  }
+/* Components */
+.pattern {
+  @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
 }
 
-/* ==========================================================================
-   ANIMATIONS (SMOOTH FADE IN/OUT)
-   ========================================================================== */
-@utility text-gradient {
+.wrapper {
+  @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
+}
+
+/* Search */
+.search {
+  @apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto border border-white/15 transition-all duration-500;
+}
+.search:focus-within {
+  @apply border-indigo-500/80 bg-indigo-950/20 shadow-[0_0_30px_rgba(99,102,241,0.3)];
+}
+
+/* Trending Section */
+.trending {
+  @apply mt-20 animate-fade-in;
+}
+.trending ul {
+  @apply flex flex-row overflow-x-auto gap-5 pb-5 -mt-10 w-full;
+}
+.trending li {
+  @apply min-w-[230px] flex flex-row items-center transition-all duration-500 hover:scale-105;
+}
+
+/* Popular Shelf */
+.shelf-container {
+  @apply flex flex-row overflow-x-auto gap-6 pb-6 snap-x;
+}
+.shelf-card {
+  @apply relative overflow-hidden rounded-xl border border-white/10 transition-all duration-500 ease-in-out;
+}
+.shelf-item:hover .shelf-card {
+  @apply border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.4)];
+}
+.shelf-card img {
+  @apply w-full h-auto object-cover transition-transform duration-700 ease-in-out;
+}
+.shelf-item:hover img {
+  @apply scale-110;
+}
+
+/* Movie Card Grid */
+.all-movies ul {
+  @apply grid grid-cols-1 gap-6 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 animate-fade-in;
+}
+
+.movie-card {
+  @apply bg-dark-100 p-5 rounded-2xl border border-white/5 shadow-xl transition-all duration-500 ease-in-out cursor-pointer;
+}
+.movie-card:hover {
+  @apply border-indigo-500/60 -translate-y-2 shadow-[0_20px_40px_rgba(0,0,0,0.4),0_0_15px_rgba(99,102,241,0.2)];
+}
+
+/* Typography Utilities */
+.text-gradient {
   background: linear-gradient(90deg, #4400ff, #a27dff, #00e7ff, #28b5ff, #4400ff);
   background-size: 400% 400%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: transparent;
   animation: gradientShift 6s ease infinite;
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@utility fancy-text {
+.fancy-text {
   -webkit-text-stroke: 5px rgba(206, 206, 251, 0.5);
   font-size: 190px;
   font-family: "Bebas Neue", sans-serif;
-}
-
-/* Modal and Content Fade */
-@utility animate-fadeIn {
-  animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-@utility animate-zoomIn {
-  animation: zoomIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes zoomIn {
-  from { opacity: 0; transform: scale(0.95) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-/* Specialized horizontal scrollbars */
-.trending ul::-webkit-scrollbar,
-.shelf-container::-webkit-scrollbar {
-  height: 4px;
+  @apply text-transparent;
 }
 
 .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  scrollbar-width: none;
 }
 .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-@utility z-100 {
-  z-index: 100;
+  display: none;
 }
