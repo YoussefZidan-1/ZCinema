@@ -148,28 +148,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 </file>
 
-<file path="src/components/Search.jsx">
-import React from 'react'
-
-const Search = ({ searchTerm, setSearchTerm }) => {
-    return (
-        <div className='search'>
-            <div>
-                <img src="./search.svg" alt="search image"/>
-                <input 
-                    type='text'
-                    placeholder='Search through thousands movies'
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-        </div>
-    )
-}
-
-export default Search
-</file>
-
 <file path="src/components/Spinner.jsx">
 import React from "react";
 
@@ -351,6 +329,26 @@ const MovieDetails = ({ movieId, onClose }) => {
 };
 
 export default MovieDetails;
+</file>
+
+<file path="src/components/Search.jsx">
+const Search = ({ searchTerm, setSearchTerm }) => {
+    return (
+        <div className='search'>
+            <div className="relative">
+                <img src="./search.svg" alt="search image"/>
+                <input 
+                    type='text'
+                    placeholder='Search through thousands of movies'
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        </div>
+    )
+}
+
+export default Search
 </file>
 
 <file path="package.json">
@@ -750,9 +748,12 @@ export default App;
   transition: box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
+/* 1. Position the icon absolute and center it vertically */
 .search div img {
-  @apply h-5 w-5 relative left-0;
+  @apply h-5 w-5 absolute left-2 top-1/2 -translate-y-1/2;
   z-index: 10;
+  /* Optional: add a slight opacity to make it look more modern */
+  @apply opacity-60; 
 }
 
 .search:focus-within {
@@ -761,8 +762,9 @@ export default App;
   background: linear-gradient(135deg, rgba(42, 31, 124, 0.75), rgba(29, 25, 92, 0.5));
 }
 
+/* 2. Ensure the input padding-left accounts for the absolute icon */
 .search input {
-  @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-none;
+  @apply w-full bg-transparent py-2 pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-none;
 }
 
 .all-movies {
