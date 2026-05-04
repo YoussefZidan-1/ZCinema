@@ -643,16 +643,19 @@ export default App;
 </file>
 
 <file path="src/index.css">
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+
 @import "tailwindcss";
 
 @theme {
-  --breakpoint-xs: 480px; /* Fixed the build error */
+  --breakpoint-xs: 480px;
   --color-primary: #030014;
   --color-light-100: #cecefb;
   --color-light-200: #a8b5db;
   --color-gray-100: #9ca4ab;
   --color-dark-100: #0f0d23;
-  --font-dm-sans: "DM Sans", sans-serif, Arial;
+  --font-dm-sans: "DM Sans", sans-serif; /* Corrected mapping */
   --background-image-hero-pattern: url("/hero-bg.webp");
 }
 
@@ -747,6 +750,11 @@ export default App;
   transition: box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
+.search div img {
+  @apply h-5 w-5 relative left-0;
+  z-index: 10;
+}
+
 .search:focus-within {
   border-color: rgba(104, 105, 255, 0.8);
   box-shadow: 0 0 30px rgba(119, 35, 255, 0.4);
@@ -794,6 +802,18 @@ export default App;
   @apply mt-2 flex flex-row items-center flex-wrap gap-2;
 }
 
+.rating {
+  @apply flex flex-row items-center gap-1;
+}
+
+.rating img {
+  @apply w-4 h-4 object-contain shrink-0; /* Fixed size: 16px */
+}
+
+.rating p {
+  @apply font-bold text-base text-white leading-none;
+}
+
 /* ==========================================================================
    UTILITIES
    ========================================================================== */
@@ -812,7 +832,7 @@ export default App;
   100% { background-position: 0% 50%; }
 }
 
-.fancy-text {
+@utility fancy-text {
   -webkit-text-stroke: 5px rgba(206, 206, 251, 0.5);
   font-size: 190px;
   font-family: "Bebas Neue", sans-serif;
